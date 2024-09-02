@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #800000;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        h1, .table th, .table td {
+            color: #ffc300;
+        }
+
+        .btn {
+            background-color: #ffc300;
+            color: #800000;
+            border: none;
+        }
+
+        .btn:hover {
+            background-color: #e0b000;
+        }
+
+        .form-control {
+            background-color: #f2f2f2;
+            border: none;
+            color: #800000;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #ffc300;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Management</h1>
+        <p>Manage user roles, permissions, and activities.</p>
+
+        <!-- Add New User -->
+        <h2>Add New User</h2>
+        <form id="add-user-form" action="add_user.php" method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Full Name</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="employee_no" class="form-label">Employee Number</label>
+                <input type="text" id="employee_no" name="employee_no" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select id="role" name="role" class="form-control" required>
+                    <option value="Manager">Manager</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Inventory Clerk">Inventory Clerk</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Add User</button>
+        </form>
+
+        <!-- User List Table -->
+        <h2>Existing Users</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body"></tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchUsers();
+
+            document.getElementById("add-user-form").addEventListener("submit", function(event) {
+                event.preventDefault();
+                addUser();
+            });
+        });
+
+        function fetchUsers() {
+            fetch('get_users.php')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("users-table-body");
+                    tableBody.innerHTML = ""; // Clear existing data
+                    data.forEach(user => {
+                        const row = tableBody.insertRow();
+                        row.insertCell(0).textContent = user.full_name;
+                        row.insertCell(1).textContent = user.email;
+                        row.insertCell(2).textContent = user.role;
+                        row.insertCell(3).textContent = "Active"; // Assuming all users are active
+                        row.insertCell(4).innerHTML = `
+                            <button class="btn btn-sm btn-primary" onclick="editUser(${user.user_id}, '${user.full_name}', '${user.email}', '${user.role}')">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.user_id})">Delete</button>
+                        `;
+                    });
+                })
+                .catch(error => console.error("Error fetching users:", error));
+        }
+
+        function addUser() {
+            const formData = new FormData(document.getElementById("add-user-form"));
+            fetch('add_user.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchUsers(); // Refresh users table
+                    } else {
+                        console.error("Error adding user:", data.error);
+                    }
+                })
+                .catch(error => console.error("Error adding user:", error));
+        }
+
+        function editUser(userId, username, email, role) {
+            // Implement edit functionality here
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                fetch('delete_user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'user_id=' + userId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchUsers(); // Refresh users table
+                    } else {
+                        console.error("Error deleting user:", data.error);
+                    }
+                })
+                .catch(error => console.error("Error deleting user:", error));
+            }
+        }
+    </script>
+</body>
+</html>

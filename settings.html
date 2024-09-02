@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #800000;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #ffc300;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Settings</h1>
+        <form id="settings-form">
+            <div class="form-group">
+                <label for="timezone">Time Zone</label>
+                <select id="timezone" name="timezone" required>
+                    <option value="UTC">UTC</option>
+                    <option value="GMT+3">GMT</option>
+                    <option value="CET">CET</option>
+    
+                    <!-- Add more time zones as needed -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="currency_format">Currency Format</label>
+                <input type="text" id="currency_format" name="currency_format" required>
+            </div>
+            <div class="form-group">
+                <label for="low_stock_alert">Low Stock Alert Threshold</label>
+                <input type="number" id="low_stock_alert" name="low_stock_alert" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Save Settings</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('settings-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('save_settings.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Settings saved successfully!');
+                } else {
+                    alert('Error saving settings: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

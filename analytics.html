@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #800000;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analytics</h1>
+        <p>Analyze system data to gain insights.</p>
+
+        <div class="chart-container">
+            <canvas id="userActivityChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="productSalesChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Function to fetch analytics data from the server
+        function fetchAnalyticsData() {
+            fetch('fetch_analytics_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    // Update the charts with the fetched data
+                    updateUserActivityChart(data.userActivity);
+                    updateProductSalesChart(data.productSales);
+                })
+                .catch(error => console.error('Error fetching analytics data:', error));
+        }
+
+        function updateUserActivityChart(userActivityData) {
+            const ctx = document.getElementById('userActivityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: userActivityData.labels,
+                    datasets: [{
+                        label: 'User Activity',
+                        data: userActivityData.values,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateProductSalesChart(productSalesData) {
+            const ctx = document.getElementById('productSalesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: productSalesData.labels,
+                    datasets: [{
+                        label: 'Product Sales',
+                        data: productSalesData.values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch data when the page loads
+        fetchAnalyticsData();
+    </script>
+</body>
+</html>
+
+
